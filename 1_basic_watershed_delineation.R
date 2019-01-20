@@ -64,7 +64,7 @@ system(paste(paste(wbt_dir),
              "-o='dem_breach_major.tif'"))
 
 ####################################################################################
-# Step 3: Define stream network------------------------------------------------------------
+# Step 3: Define stream network-----------------------------------------------------
 ####################################################################################
 #Create Flow Accumulation Raster
 system(paste(paste(wbt_dir), 
@@ -89,7 +89,7 @@ flownet<-st_as_sf(flownet)
 st_write(flownet, paste0(output_dir,"flownet.shp"))
 
 ####################################################################################
-# Step 4: Delineate Watershed------------------------------------------------------------
+# Step 4: Delineate Watershed-------------------------------------------------------
 ####################################################################################
 #Export pour point to scratch directory 
 st_write(pp, paste0(scratch_dir,"pnts.shp"), delete_layer = T)
