@@ -17,10 +17,10 @@ library(raster)     # for spatial analysis
 library(tidyverse)  # for data wrangling
 
 #define relevant directories
-wbt_dir<-     "C:\\WBT/whitebox_tools"
-scratch_dir<- "C:\\ScratchWorkspace/"
-data_dir<-    "//storage.research.sesync.org/njones-data/Research Projects/WNC_watershed/spatial_data/RawData/"
-output_dir<-   "//storage.research.sesync.org/njones-data/Research Projects/WNC_watershed/spatial_data/DerivedData/"
+wbt_dir<-     "/Users/jpgannon/Desktop/WBT/whitebox_tools"
+scratch_dir<- "/Users/jpgannon/Desktop/WRRI_Proj/"
+data_dir<-    "/Users/jpgannon/Desktop/DEMS 4 drainage analysis/"
+output_dir<-   "/Users/jpgannon/Desktop/DEMS 4 drainage analysis/DerivedData/"
   
 #Download data
 dem<-raster(paste0(data_dir,"WS2_DEM1.tif"))
@@ -120,7 +120,7 @@ system(paste(paste(wbt_dir),
              paste0("--wd=",scratch_dir),
              "--pour_pts='pp.tif'", 
              "--streams='flowgrid.tif'",
-             "-o='pp_snap.tif",
+             "-o='pp_snap.tif'",
              "--snap_dist=1000"))
 
 #Convert back to point file
