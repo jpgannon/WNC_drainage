@@ -1,0 +1,51 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(sf)         # for spatial analysis
+library(raster)  
+library(rgeos)
+library(sp)
+library(rgdal)
+library(ggplot2)
+
+#thresholds
+thresholds <- seq(from = 1000, to = 50000, by = 1000)
+strlength <- rep(NA, length(thresholds))
+
+setwd("~/Desktop/WRRI_Proj/Jackson County Drainage Dens and Channel heads/JM DEM/MullCreek_nets")
+
+
+for(y in 1:length(thresholds)){
+  #read shapefile
+  net <- readOGR(paste("flownet6m",thresholds[y],".shp", sep = ''))
+
+  #length in feet
+  strlength[y] <- gLength(net)
+}
+
+#mull ck 1.24781 km2 = 13431315 ft2
+#LB 2.88215 km2 = 31023204 ft2
+#moses 5.06414 km2
+
+area <- 13431315 #in ft2
+ws <- rep("Mull", length(thresholds))
+res <- rep("6m", length(thresholds))
+trial <- rep("Mull_6m", length(thresholds))
+draind <- (strlength*0.0003048) / (area * 0.0000000929) #km / km2
+
+lens <- data.frame(cbind(thresholds, strlength, draind, ws, res, trial))
+write.csv(lens, "Mull_6m_thresholds_Lengths.csv")
+```
+
+PLOT
+```{r}
+ggplot(lens, aes(thresholds, strlength))+
+  geom_point()+
+  scale_y_log10()
+```
+
+

@@ -18,9 +18,9 @@ library(tidyverse)  # for data wrangling
 
 #define relevant directories
 wbt_dir<-     "/Users/jpgannon/Desktop/WBT/whitebox_tools"
-scratch_dir<- "/Users/jpgannon/Desktop/WRRI_Proj/"
-data_dir<-    "/Users/jpgannon/Desktop/DEMS 4 drainage analysis/"
-output_dir<-   "/Users/jpgannon/Desktop/DEMS 4 drainage analysis/DerivedData/"
+scratch_dir<- "/Users/jpgannon/Desktop/WRRI_Proj/Scratch/"
+data_dir<-    "/Users/jpgannon/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainanal/"
+output_dir<-   "/Users/jpgannon/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainanal/DerivedData/"
   
 #Download data
 dem<-raster(paste0(data_dir,"WS2_DEM1.tif"))

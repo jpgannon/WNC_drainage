@@ -1,0 +1,155 @@
+---
+title: "Create animation of stream network expansion"
+output: html_notebook
+---
+
+```{r}
+library(rgdal)     # R wrapper around GDAL/OGR
+library(ggplot2)   # for general plotting
+library(ggmap)    # for fortifying shapefiles
+library(gganimate)
+library(gapminder)
+library(gifski)
+library(transformr)
+```
+
+```{r, fig.asp = 1}
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 1m analysis")
+
+#BUILD dataframe with all flownets
+thresholds <- seq(from = 1000, to = 41000, by = 1000)
+
+for(y in 1:length(thresholds)){
+  #read shapefile
+  net <- readOGR(paste("flownet1m",thresholds[y],".shp", sep = ''))
+  
+  #convert to a dataframe for use in ggplot2
+  net_df <- fortify(net)
+  
+  #add threshold to id
+  net_df$threshold <- rep(thresholds[y], length(net_df$id))
+  net_df$ws <- rep("WS2_1m", length(net_df$id))
+  
+  if(y == 1) nets <- net_df
+  if(y != 1) nets <- rbind(nets, net_df)
+}
+  
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 6m analysis")
+
+#BUILD dataframe with all flownets
+#thresholds <- seq(from = 500, to = 50000, by = 500)
+
+for(y in 1:length(thresholds)){
+  #read shapefile
+  net <- readOGR(paste("flownet6m",thresholds[y],".shp", sep = ''))
+  
+  #convert to a dataframe for use in ggplot2
+  net_df <- fortify(net)
+  
+  #add threshold to id
+  net_df$threshold <- rep(thresholds[y], length(net_df$id))
+  net_df$ws <- rep("WS2_6m", length(net_df$id))
+  #if(y == 1) nets <- net_df
+  #if(y != 1) 
+  nets <- rbind(nets, net_df)
+}
+  
+  
+  
+
+
+```
+
+```{r}
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 6m analysis")
+watershed <- readOGR("WS2_watershed.shp")
+  
+#convert to a dataframe for use in ggplot2
+watershed <- fortify(watershed)
+  
+sna <- ggplot()+
+    geom_path(data = nets, 
+          aes(x = long, y = lat, group = group),
+          color = 'blue', size = .2)+
+  coord_fixed(ratio = 1)+
+  geom_path(data = watershed, aes(x = long, y = lat, group = group))+
+  facet_grid(cols = vars(ws))+
+  #gganimate
+  labs(title = 'Threshold: {current_frame}', x = 'lon', y = 'lat') +
+  transition_manual(factor(threshold, levels = seq(from = max(threshold), to = 1000, by = -1000))) +
+  ease_aes('linear')
+
+animate(sna, fps = 8,start_pause = 6 , end_pause = 12)
+```
+
+```{r, fig.asp = 1}
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/clip61 1m analysis")
+
+#BUILD dataframe with all flownets
+thresholds <- seq(from = 500, to = 41000, by = 500)
+
+for(y in 1:length(thresholds)){
+  #read shapefile
+  net <- readOGR(paste("flownet1m",thresholds[y],".shp", sep = ''))
+  
+  #convert to a dataframe for use in ggplot2
+  net_df <- fortify(net)
+  
+  #add threshold to id
+  net_df$threshold <- rep(thresholds[y], length(net_df$id))
+  net_df$ws <- rep("C61_1m", length(net_df$id))
+  
+  if(y == 1) nets <- net_df
+  if(y != 1) nets <- rbind(nets, net_df)
+}
+  
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/clip61 6m analysis")
+
+#BUILD dataframe with all flownets
+#thresholds <- seq(from = 500, to = 50000, by = 500)
+
+for(y in 1:length(thresholds)){
+  #read shapefile
+  net <- readOGR(paste("flownet6m",thresholds[y],".shp", sep = ''))
+  
+  #convert to a dataframe for use in ggplot2
+  net_df <- fortify(net)
+  
+  #add threshold to id
+  net_df$threshold <- rep(thresholds[y], length(net_df$id))
+  net_df$ws <- rep("C61_6m", length(net_df$id))
+  #if(y == 1) nets <- net_df
+  #if(y != 1) 
+  nets <- rbind(nets, net_df)
+}
+  
+  
+  
+
+
+```
+```{r}
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/clip61 6m analysis")
+watershed <- readOGR("c61watershed.shp")
+  
+#convert to a dataframe for use in ggplot2
+watershed <- fortify(watershed)
+  
+sna <- ggplot()+
+    geom_path(data = nets, 
+          aes(x = long, y = lat, group = group),
+          color = 'blue', size = .4)+
+  coord_fixed(ratio = 1)+
+  geom_path(data = watershed, aes(x = long, y = lat, group = group))+
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        plot.title = element_text(size = 18, face = "bold"))+
+  facet_grid(rows = vars(ws))+
+  #gganimate
+  labs(title = 'Threshold: {current_frame}', x = 'lon', y = 'lat') +
+  transition_manual(factor(threshold, levels = seq(from = max(threshold), to = 500, by = -500))) +
+  ease_aes('linear')
+
+animate(sna, fps = 8,start_pause = 6 , end_pause = 12, height = 800, width =800)
+anim_save("C61_drainage_animation2.gif")
+```

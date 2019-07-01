@@ -1,0 +1,203 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(ggplot2)
+library(sf)         # for spatial analysis
+library(raster)  
+library(rgeos)
+library(rgdal)
+library(ggmap)
+library(gridExtra)
+library(sp)
+#library(maps)
+#library(maptools)
+library(plyr)
+#library(ggsn)
+#library(gridExtra)
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal")
+dat <- read.csv("Thresholds_V_DrainDensity.csv")
+```
+
+Plots
+```{r}
+
+dd <- ggplot(dat, aes(thresholds, draind, color = ws, linetype = res))+
+  geom_line()+
+  scale_x_log10()+
+  scale_y_log10()+
+  #scale_color_manual(values=c("red", "pink", "green","orange", "blue", "lightblue"), 
+                    # name = "WS_Resolution")+
+  geom_hline(yintercept=c(1.23, 3.88), linetype="dashed", color = "red")+
+  theme_classic()+
+  ylab(bquote('drainage density (km/' *~km^2*')'))+
+  xlab(bquote('stream initiation threshold ('*~m^2*')'))+
+  annotate("text",c(1000,1000),c(1.35,4.3),label =c("USGS NHD","Benstead & Leigh 2012"))+
+  scale_linetype_discrete(name = "resolution")+
+  scale_color_discrete(name = "watershed")
+
+ggsave("drainagedens_V1.pdf", dd, width = 6.5, height = 4, path = "~/Desktop/WRRI_Proj/Gordon Poster")
+```
+
+```{r}
+
+
+ggplot(dat, aes(thresholds, draind, color = trial))+
+  geom_line()
+```
+
+
+
+```{r}
+##
+## Long Branch
+## 10,000 m2 for 6m and 1m DEM
+##
+
+setwd("~/Desktop/WRRI_Proj/Jackson County Drainage Dens and Channel heads/JM DEM/LongBranch_nets")
+net6m <- readOGR("flownet6m10000.shp")
+net6m <- fortify(net6m)
+
+net1m <- readOGR("flownet1m10000.shp")
+net1m <- fortify(net1m) 
+
+ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = "gray")+
+  theme_classic()+
+  ylab("latitude (m)")+
+  xlab("longitude (m)")+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece, color = "red"))
+  
+
+```
+
+```{r}
+##
+## Mull Creek
+## 30k, 10k, 3k m2 for 6m and 1m DEM
+##
+
+col2 <- "#F8766D"
+col1 <- "#00BFC4"
+
+#30,000
+
+setwd("~/Desktop/WRRI_Proj/Jackson County Drainage Dens and Channel heads/JM DEM/MullCreek_nets")
+net6m <- readOGR("flownet6m30000.shp")
+net6m <- fortify(net6m)
+
+net1m <- readOGR("flownet1m30000.shp")
+net1m <- fortify(net1m) 
+
+MC30k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('30,000 '*~m^2*''))
+
+#10,000
+
+setwd("~/Desktop/WRRI_Proj/Jackson County Drainage Dens and Channel heads/JM DEM/MullCreek_nets")
+net6m <- readOGR("flownet6m10000.shp")
+net6m <- fortify(net6m)
+
+net1m <- readOGR("flownet1m10000.shp")
+net1m <- fortify(net1m) 
+
+MC10k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('10,000 '*~m^2*''))
+
+#3,000
+
+setwd("~/Desktop/WRRI_Proj/Jackson County Drainage Dens and Channel heads/JM DEM/MullCreek_nets")  
+net6m <- readOGR("flownet6m3000.shp")
+net6m <- fortify(net6m)
+
+net1m <- readOGR("flownet1m3000.shp")
+net1m <- fortify(net1m) 
+
+MC3k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('3,000 '*~m^2*''))
+
+mcg <- grid.arrange(MC30k, MC10k, MC3k, nrow = 1)
+
+ggsave("mullcreek_nets_v1.pdf", mcg, width = 8, height = 4, path = "~/Desktop/WRRI_Proj/Gordon Poster")
+```
+
+```{r}
+##
+## WS2
+## 30k, 10k, 3k m2 for 6m and 1m DEM
+##
+
+
+#30,000
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 6m analysis")
+net6m <- readOGR("flownet6m30000.shp")
+net6m <- fortify(net6m)
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 1m analysis")
+net1m <- readOGR("flownet1m30000.shp")
+net1m <- fortify(net1m) 
+
+MC30k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('30,000 '*~m^2*''))
+
+#10,000
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 6m analysis")
+net6m <- readOGR("flownet6m10000.shp")
+net6m <- fortify(net6m)
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 1m analysis")
+net1m <- readOGR("flownet1m10000.shp")
+net1m <- fortify(net1m) 
+
+MC10k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('10,000 '*~m^2*''))
+
+#3,000
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 6m analysis")
+net6m <- readOGR("flownet6m3000.shp")
+net6m <- fortify(net6m)
+
+setwd("~/Desktop/WRRI_Proj/WNC_drainage/DEMS4drainAnal/WS2 1m analysis")
+net1m <- readOGR("flownet1m3000.shp")
+net1m <- fortify(net1m) 
+
+MC3k <- ggplot(net6m, aes(long, lat, group = piece)) + 
+  geom_path(color = col1)+
+  theme_void()+
+  coord_equal()+
+  geom_path(data = net1m, aes(long, lat, group = piece), color = col2)+
+  ggtitle(bquote('3,000 '*~m^2*''))
+
+WC2g <- grid.arrange(MC30k, MC10k, MC3k, nrow = 1)
+
+ggsave("ws2_nets_v1.pdf", WC2g, width = 8, height = 4, path = "~/Desktop/WRRI_Proj/Gordon Poster")
+```
